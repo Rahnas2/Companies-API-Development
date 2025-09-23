@@ -40,7 +40,7 @@ exports.findAllCompanies = async (limit, page, search) => {
 
 exports.findByCompanyId = (id) => company.findById(id)
 
-exports.findByName = (name) => company.findOne({ name: { $regex: name, $options: 'i' }})
+exports.findByName = (name) => company.findOne({ name }).collation({ locale: 'en', strength: 2 })
 
 exports.updateCompanyById = (id, data) => company.findByIdAndUpdate(id, data, { new: true })
 
