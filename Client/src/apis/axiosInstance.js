@@ -1,6 +1,8 @@
 import axios from 'axios'
 
-const baseURL = import.meta.env.VITE_BACKEND_URI || '/api';
+const baseURL = import.meta.env.VITE_BACKEND_URI 
+
+console.log('base uri ', baseURL)
 
 const axiosInstance = axios.create({
   baseURL,
