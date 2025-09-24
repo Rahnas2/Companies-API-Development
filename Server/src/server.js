@@ -15,10 +15,18 @@ app.use(express.json());
 app.use('/api/companies', companyRoutes)
 
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../../Client/dist')));
+  const buildPath = path.join(__dirname, '../../Client/dist');
 
-  app.get('/*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../../Client/dist', 'index.html'));
+  app.use(express.static(buildPath));
+
+  // Catch-all using middleware
+  app.use((req, res, next) => {
+    // Only serve index.html if it's not an API request
+    if (!req.path.startsWith('/api')) {
+      res.sendFile(path.join(buildPath, 'index.html'));
+    } else {
+      next();
+    }
   });
 }
 
