@@ -4,6 +4,7 @@ import useForm from "../hooks/useForm"
 import { companyInitial } from "../utils/initialDataCompany"
 import { validateCompanyForm } from "../validations/validateCompanyForm"
 import { createCompanyApi, updateCompanyApi } from "../apis/companyServices"
+import toast from "react-hot-toast"
 
 const CompanyModal = ({ isOpen, onClose, onSave, company, mode }) => {
 
@@ -29,12 +30,12 @@ const CompanyModal = ({ isOpen, onClose, onSave, company, mode }) => {
             } else {
                 result = await updateCompanyApi(data)
             }
-
+            toast.success('success')
             onSave(result);
             onClose();
 
         } catch (error) {
-
+            toast.error(error?.response?.data?.message || 'something went wrong')
         } finally {
             setSubmiting(false)
         }

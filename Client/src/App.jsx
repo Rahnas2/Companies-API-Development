@@ -9,6 +9,7 @@ import CompanyCard from "./components/CompanyCard"
 import CompaniesTable from "./components/CompaniesTable"
 import { deleteCompanyApi, fetchAllCompaniesApi } from "./apis/companyServices"
 import Paginaton from "./components/Paginaton"
+import toast, { Toaster } from 'react-hot-toast';
 
 
 function App() {
@@ -87,7 +88,14 @@ function App() {
       if (window.confirm('Are you sure you want to delete this company?')) {
          setCompanies(prev => prev.filter(company => company._id !== id));
          setTotalCompanies(totalCompanies - 1)
-         await deleteCompanyApi(id)
+
+         try {
+            await deleteCompanyApi(id)
+            toast.success('deleted successfully')
+         } catch (error) {
+            toast.error(error?.response?.data?.message || 'something went wrong')
+         }
+         
       }
    };
 
@@ -163,6 +171,8 @@ function App() {
             company={editingCompany}
             mode={modalMode}
          />
+
+          <Toaster />
 
       </div>
    )

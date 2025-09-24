@@ -26,8 +26,7 @@ exports.updateCompany = async (companyId, data) => {
     if (data.name) {
         console.log('name currently ', data.name)
         const existing = await companyRepo.findByName(data.name)
-        console.log('exising ', existing)
-        if (existing && existing._id !== companyId) {
+        if (existing && existing._id.toString() !== companyId) {
             throw { status: httpStatusCodes.CONFLICT, message: 'Company already registered' }
         }
     }
