@@ -8,6 +8,7 @@ import CompanyModal from "./components/CompanyModal"
 import CompanyCard from "./components/CompanyCard"
 import CompaniesTable from "./components/CompaniesTable"
 import { deleteCompanyApi, fetchAllCompaniesApi } from "./apis/companyServices"
+import Paginaton from "./components/Paginaton"
 
 
 function App() {
@@ -20,41 +21,50 @@ function App() {
    const [totalCompanies, setTotalCompanies] = useState(0)
    const [companies, setCompanies] = useState([])
    const [editingCompany, setEditingCompany] = useState();
+
    const [currentPage, setCurrentPage] = useState(1)
+   const [totalPages, setTotalPages] = useState(1)
 
    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm)
 
-useEffect(() => {
-  const handler = setTimeout(() => {
-    setDebouncedSearchTerm(searchTerm)
-  }, 500)
+   useEffect(() => {
+      const handler = setTimeout(() => {
+         setDebouncedSearchTerm(searchTerm)
+         setCurrentPage(1)
+      }, 500)
 
-  return () => {
-    clearTimeout(handler)
-  }
-}, [searchTerm])
+      return () => {
+         clearTimeout(handler)
+      }
+   }, [searchTerm])
 
-useEffect(() => {
-  const fetchCompanies = async () => {
-    try {
-      setIsFetchingCompanies(true)
-      const result = await fetchAllCompaniesApi(currentPage, debouncedSearchTerm)
-      setTotalCompanies(result.total)
-      setCompanies(result.data)
-    } catch (error) {
-      console.error('error fetching companies ', error)
-    } finally {
-      setIsFetchingCompanies(false)
-    }
-  }
+   useEffect(() => {
+      const fetchCompanies = async () => {
+         try {
+            setIsFetchingCompanies(true)
+            const result = await fetchAllCompaniesApi(currentPage, debouncedSearchTerm)
+            setTotalCompanies(result.total)
+            setTotalPages(result.totalPages)
+            setCompanies(result.data)
+         } catch (error) {
+            console.error('error fetching companies ', error)
+         } finally {
+            setIsFetchingCompanies(false)
+         }
+      }
 
-  fetchCompanies()
-}, [debouncedSearchTerm, currentPage])
+      fetchCompanies()
+   }, [debouncedSearchTerm, currentPage])
 
 
    // View Mode 
    const onChangeViewMode = (data) => {
       setViewMode(data)
+   }
+
+   // Handle Page Cahnge 
+   const handlePageChange = (newPage) => {
+      setCurrentPage(newPage)
    }
 
 
@@ -111,12 +121,12 @@ useEffect(() => {
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
                <div className="flex-1 max-w-md">
                   <SearchBar
-                  searchTerm={searchTerm}
-                  onSearchChange={setSearchTerm}
-                  placeholder="Search companies, industries, or locations..."
+                     searchTerm={searchTerm}
+                     onSearchChange={setSearchTerm}
+                     placeholder="Search companies, industries, or locations..."
                   />
                </div>
-               <ViewModes viewMode= {viewMode} onChangeViewMode={onChangeViewMode}/>
+               <ViewModes viewMode={viewMode} onChangeViewMode={onChangeViewMode} />
             </div>
 
             {/* Result Summary  */}
@@ -126,16 +136,22 @@ useEffect(() => {
             {companies.length === 0 ? (
                <EmptyResult searchTerm={searchTerm} handleCreateCompany={handleCreateCompany} />
             ) : viewMode === 'table' ? (
-               <CompaniesTable companies={companies} onEdit={handleEditCompany} onDelete={handleDeleteCompany}/>
+               <>
+                  <CompaniesTable companies={companies} onEdit={handleEditCompany} onDelete={handleDeleteCompany} />
+                  <Paginaton currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+               </>
             ) : (
-               companies.map((company) => (
-                  <CompanyCard
-                     key={company.name}
-                     company={company}
-                     onEdit={handleEditCompany}
-                     onDelete={handleDeleteCompany}
-                  />
-               ))
+               <>
+                  {companies.map((company) => (
+                     <CompanyCard
+                        key={company.name}
+                        company={company}
+                        onEdit={handleEditCompany}
+                        onDelete={handleDeleteCompany}
+                     />
+                  ))}
+                  <Paginaton currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+               </>
             )}
          </div>
 

@@ -27,12 +27,13 @@ exports.findAllCompanies = async (limit, page, search) => {
 
   const companies = await company.find(query)
     .skip((page - 1) * limit)
-    .limit(limit)
+    .limit(limit)    
     .sort({ createdAt: -1 });
 
   return {
     total,
     page,
+    totalPages: Math.ceil(total / limit),
     limit,
     data: companies,
   };
