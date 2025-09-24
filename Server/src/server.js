@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const { connectDB } = require('./config/db');
 const companyRoutes  = require('./routes/company.routes');
@@ -12,6 +13,14 @@ app.use(cors())
 app.use(express.json());
 
 app.use('/api/companies', companyRoutes)
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../../client/build')));
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../../client/build', 'index.html'));
+  });
+}
 
 //404
 app.use(notFound)
